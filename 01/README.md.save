@@ -1,0 +1,114 @@
+## Домашнее задание к занятию «Введение в Terraform»
+
+##Чеклист готовности к домашнему заданию
+Скачайте и установите актуальную версию terraform >=1.4.X . Приложите скриншот вывода команды terraform --version.
+![](terraform.png)
+Скачайте на свой ПК данный git репозиторий. Исходный код для выполнения задания расположен в директории 01/src.
+Убедитесь, что в вашей ОС установлен docker.
+``
+solovtsov@my-server:~$ docker --version
+Docker version 24.0.3, build 3713ee1
+``
+
+## Задание 1
+1. Перейдите в каталог src. Скачайте все необходимые зависимости, использованные в проекте.
+2. Изучите файл .gitignore. В каком terraform файле согласно этому .gitignore допустимо сохранить личную, секретную информацию?
+## Ответ:
+`personal.auto.tfvars`
+3. Выполните код проекта. Найдите в State-файле секретное содержимое созданного ресурса random_password, пришлите в качестве ответа конкретный ключ и его значение.
+## Ответ:
+`"result": "6Qr4DjlY55zKykU1"`
+файл целиком:
+```
+{
+  "version": 4,
+  "terraform_version": "1.4.5",
+  "serial": 1,
+  "lineage": "cbaed85b-fa78-1470-ea99-1792355e2608",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "random_password",
+      "name": "random_string",
+      "provider": "provider[\"registry.terraform.io/hashicorp/random\"]",
+      "instances": [
+        {
+          "schema_version": 3,
+          "attributes": {
+            "bcrypt_hash": "$2a$10$tzrGcL7FTSezw/9fBNZp1u94CJxb5Pw40pu6tWGtDcJoUDZEuIdG6",
+            "id": "none",
+            "keepers": null,
+            "length": 16,
+            "lower": true,
+            "min_lower": 1,
+            "min_numeric": 1,
+            "min_special": 0,
+            "min_upper": 1,
+            "number": true,
+            "numeric": true,
+            "override_special": null,
+            "result": "6Qr4DjlY55zKykU1",
+            "special": false,
+            "upper": true
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
+```
+4. Раскомментируйте блок кода, примерно расположенный на строчках 29-42 файла main.tf. Выполните команду terraform validate. Объясните в чем заключаются намеренно допущенные ошибки? Исправьте их.
+## Ответ:
+  4.1. Первая ошибка заключается в отсутвии лебла имя.
+```
+│ Error: Missing name for resource
+│
+│   on main.tf line 23, in resource "docker_image":
+│   23: resource "docker_image" {
+│
+│ All resource blocks must have 2 labels (type, name).
+```
+  4.2. Вторая ошибка заключается в том, что в лейбле имя должно начинаться с буквы
+```
+│ Error: Invalid resource name
+│
+│   on main.tf line 28, in resource "docker_container" "1nginx":
+│   28: resource "docker_container" "1nginx" {
+│
+│ A name must start with a letter or underscore and may contain only letters, digits, underscores, and dashes.
+```
+  4.3. Неправильное имя
+```
+│ Error: Reference to undeclared resource
+│
+│   on main.tf line 30, in resource "docker_container" "nginx":
+│   30:   name  = "example_${random_password.random_string_fake.resuld}"
+│
+│ A managed resource "random_password" "random_string_fake" has not been declared in the root module.
+```
+## Исправленная часть конфига
+```
+resource "docker_image" "nginx"{
+  name         = "nginx:latest"
+  keep_locally = true
+}
+
+resource "docker_container" "nginx"{
+  image = docker_image.nginx.image_id
+  #name  = "example_${random_password.random_string_fake.resuld}"
+  name = "nginx"
+
+  ports {
+    internal = 80
+    external = 8000
+  }
+}
+```
+5. Выполните код. В качестве ответа приложите вывод команды docker ps
+
+6. Замените имя docker-контейнера в блоке кода на hello_world, выполните команду terraform apply -auto-approve. Объясните своими словами, в чем может быть опасность применения ключа -auto-approve ? В качестве ответа дополнительно приложите вывод команды docker ps
+7. Уничтожьте созданные ресурсы с помощью terraform. Убедитесь, что все ресурсы удалены. Приложите содержимое файла terraform.tfstate.
+8. Объясните, почему при этом не был удален docker образ nginx:latest ? Ответ подкрепите выдержкой из документации провайдера.
