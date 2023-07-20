@@ -27,8 +27,7 @@ resource "docker_image" "nginx"{
 
 resource "docker_container" "nginx"{
   image = docker_image.nginx.image_id
-  #name  = "example_${random_password.random_string_fake.resuld}"
-  name = "nginx"
+  name  = "example_${random_password.random_string.result}"
 
   ports {
     internal = 80
@@ -42,7 +41,7 @@ resource "docker_container" "nginx"{
 ```
 solovtsov@my-server:/opt/terraform/src$ docker ps
 CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
-78bee1d4df5c   021283c8eb95   "/docker-entrypoint.…"   7 minutes ago   Up 7 minutes   0.0.0.0:8000->80/tcp   nginx
+171862f88695   021283c8eb95   "/docker-entrypoint.…"   3 seconds ago   Up 3 seconds   0.0.0.0:8000->80/tcp   example_ACrSFr3636Gw9yHl
 ```
 6.Замените имя docker-контейнера в блоке кода на hello_world, выполните команду terraform apply -auto-approve. Объясните своими словами, в чем может быть опасность применения ключа -auto-approve ? В качестве ответа дополнительно приложите вывод команды docker ps
 ## Ответ:
