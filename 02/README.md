@@ -235,11 +235,11 @@ variable "vm_db_resources" {
 ![](end.png)
 
 ## Подключение проходит с такой конфигурацией:
-
+```
 variable "vms_metadata" {
   type        = map
   default     = { serial-port = 1, ssh = "ubuntu:/home/solovtsov/.ssh/id_rsa.pub" }
   description = "VMs metadata"
 }
-
+```
 ![](proof.png)
