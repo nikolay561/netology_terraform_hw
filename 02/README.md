@@ -179,9 +179,10 @@ variable "vm_db_resources" {
 
 variable "vms_metadata" {
   type        = map
-  default     = { serial-port = 1, ssh = "ubuntu:/home/solovtsov/.ssh/id_rsa.pub" }
+  default     = { serial-port = 1, ssh = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABA..." }>
   description = "VMs metadata"
 }
+
 
 ###yandex compute image vars
 
